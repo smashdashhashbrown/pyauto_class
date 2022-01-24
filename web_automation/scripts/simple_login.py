@@ -3,6 +3,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from datetime import datetime
 import time
 
 
@@ -33,15 +34,16 @@ def scrape_temp(driver):
     element = driver.find_element(By.ID, 'displaytimer')
     temperature = extract_temp(element.text)
     print("Calculated avg world temp: {}".format(temperature))
+    return temperature
 
 
 def py_anywhere_login(driver, user, passwd):
     driver.get("http://automated.pythonanywhere.com/login/")
     print("Loggin in as user {}".format(user))
-    element = driver.find_element(By.ID, "id_username").send_keys(user)
+    driver.find_element(By.ID, "id_username").send_keys(user)
     time.sleep(0.1)
-    element = driver.find_element(By.ID, "id_password").send_keys(passwd + 
-              Keys.RETURN)
+    driver.find_element(By.ID, "id_password").send_keys(passwd +
+                                                        Keys.RETURN)
     time.sleep(0.1)
     print("Current URL: {}".format(driver.current_url))
 
@@ -49,13 +51,29 @@ def py_anywhere_login(driver, user, passwd):
     print("Current URL: {}".format(driver.current_url))
 
 
+def init_csv():
+    file = open("files/temps.csv", "w")
+    file.write("datetime,temp\n")
+    return file
+
+
 def main():
+    file = init_csv()
     driver = configure_driver()
     user = "automated"
     passwd = "automatedautomated"
 
     py_anywhere_login(driver, user, passwd)
-    scrape_temp(driver)    
+
+    try:
+        while True:
+            temp = scrape_temp(driver)
+            line = "{},{}\n".format(datetime.now(), temp)
+            print(line)
+            file.write(line)
+    except KeyboardInterrupt:
+        print("Ending program.")
+        file.close()
 
 
 if __name__ == "__main__":
