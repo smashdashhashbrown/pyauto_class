@@ -2,6 +2,7 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 import time
 
 
@@ -24,8 +25,7 @@ def extract_temp(text):
     return float(text.split(": ")[1])
 
 
-def main():
-    driver = configure_driver()
+def scrape_temp(driver):
     driver.get("http://automated.pythonanywhere.com/")
 
     # Alternative 'find_element':
@@ -36,6 +36,24 @@ def main():
     element = driver.find_element(By.ID, 'displaytimer')
     temperature = extract_temp(element.text)
     print("Calculated avg world temp: {}".format(temperature))
+
+
+def main():
+    driver = configure_driver()
+    user = "automated"
+    passwd = "automatedautomated"
+
+    driver.get("http://automated.pythonanywhere.com/login/")
+    print("Loggin in as user {}".format(user))
+    element = driver.find_element(By.ID, "id_username").send_keys(user)
+    time.sleep(0.1)
+    element = driver.find_element(By.ID, "id_password").send_keys(passwd + 
+              Keys.RETURN)
+    time.sleep(0.1)
+    print("Current URL: {}".format(driver.current_url))
+
+    driver.find_element(By.XPATH, "/html/body/nav/div/a").click()
+    print("Current URL: {}".format(driver.current_url))
 
 
 if __name__ == "__main__":
