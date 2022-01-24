@@ -26,11 +26,8 @@ def extract_temp(text):
 
 
 def scrape_temp(driver):
-    driver.get("http://automated.pythonanywhere.com/")
-
-    # Alternative 'find_element':
-    # element = driver.find_element(by="xpath",
-    #           value="/html/body/div[1]/div/h1[2]")
+    if driver.current_url != "http://automated.pythonanywhere.com/":
+        driver.get("http://automated.pythonanywhere.com/")
 
     time.sleep(2)  # Allow website to get temperature
     element = driver.find_element(By.ID, 'displaytimer')
@@ -38,11 +35,7 @@ def scrape_temp(driver):
     print("Calculated avg world temp: {}".format(temperature))
 
 
-def main():
-    driver = configure_driver()
-    user = "automated"
-    passwd = "automatedautomated"
-
+def py_anywhere_login(driver, user, passwd):
     driver.get("http://automated.pythonanywhere.com/login/")
     print("Loggin in as user {}".format(user))
     element = driver.find_element(By.ID, "id_username").send_keys(user)
@@ -54,6 +47,15 @@ def main():
 
     driver.find_element(By.XPATH, "/html/body/nav/div/a").click()
     print("Current URL: {}".format(driver.current_url))
+
+
+def main():
+    driver = configure_driver()
+    user = "automated"
+    passwd = "automatedautomated"
+
+    py_anywhere_login(driver, user, passwd)
+    scrape_temp(driver)    
 
 
 if __name__ == "__main__":
